@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Radar, Loader, TrendingUp, Shield, AlertTriangle, Zap, BarChart3, ArrowRight } from 'lucide-react';
+import { Radar, Loader, TrendingUp, Shield, AlertTriangle, Zap, BarChart3, ArrowRight, Download, FileSpreadsheet } from 'lucide-react';
 import { marketStore } from '../../store/marketStore';
 import { endpoints } from '../../config';
 
@@ -126,6 +126,58 @@ const NSEScanner: React.FC = () => {
     setIsScanning(false);
   };
 
+  const exportToExcel = useCallback(() => {
+    const dataToExport = results.length > 0 ? results : liveCandidates;
+    if (!dataToExport || dataToExport.length === 0) return;
+
+    const headers = [
+      'Rank',
+      'Symbol',
+      'Signal',
+      'Confidence (%)',
+      'Strength',
+      'Entry Price (INR)',
+      'Stop Loss (INR)',
+      'Target Price (INR)',
+      'Risk Reward Ratio',
+      'Bull Score',
+      'Bear Score',
+      'Confluence Reasons',
+      'Timeframe',
+      'Timestamp'
+    ];
+
+    const rows = dataToExport.map((sig, idx) => [
+      idx + 1,
+      sig.symbol.replace('.NS', ''),
+      sig.signal,
+      `${sig.confidence}%`,
+      sig.strength,
+      sig.entry ? sig.entry.toFixed(2) : '0.00',
+      sig.stopLoss ? sig.stopLoss.toFixed(2) : '0.00',
+      sig.target ? sig.target.toFixed(2) : '0.00',
+      `1:${sig.riskReward ? sig.riskReward.toFixed(0) : '0'}`,
+      sig.bull_score || 0,
+      sig.bear_score || 0,
+      `"${(sig.reasons || []).join('; ').replace(/"/g, '""')}"`,
+      sig.timeframe || '1D',
+      sig.timestamp || new Date().toISOString()
+    ]);
+
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const dateStr = new Date().toISOString().split('T')[0];
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `NSE_ICT_Scan_Results_${dateStr}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [results, liveCandidates]);
+
   const pct = progress ? Math.round((progress.scanned / progress.total) * 100) : 0;
   const displayResults = results.length > 0 ? results : liveCandidates;
 
@@ -241,12 +293,23 @@ const NSEScanner: React.FC = () => {
       {/* Results Table */}
       {displayResults.length > 0 && (
         <div className="flex-1 flex flex-col min-h-[500px] overflow-hidden bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl">
-          <div className="p-4 border-b border-slate-800/60 flex items-center gap-3">
-            <TrendingUp size={18} className="text-emerald-400" />
-            <span className="text-sm font-bold text-white">
-              {results.length > 0 ? `All BUY Candidates (${results.length})` : 'Live Candidates (updating...)'}
-            </span>
-            {isScanning && <Loader size={14} className="animate-spin text-cyan-400 ml-2" />}
+          <div className="p-4 border-b border-slate-800/60 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <TrendingUp size={18} className="text-emerald-400" />
+              <span className="text-sm font-bold text-white">
+                {results.length > 0 ? `All BUY Candidates (${results.length})` : 'Live Candidates (updating...)'}
+              </span>
+              {isScanning && <Loader size={14} className="animate-spin text-cyan-400 ml-2" />}
+            </div>
+            <button
+              onClick={exportToExcel}
+              className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 hover:text-white transition-all duration-200 shadow-md cursor-pointer"
+              title="Export results to Excel compatible CSV file"
+            >
+              <Download size={14} />
+              <FileSpreadsheet size={14} />
+              <span>Export to Excel</span>
+            </button>
           </div>
           <div className="overflow-auto flex-1 min-h-[450px] max-h-[calc(100vh-280px)]">
             <table className="w-full text-sm">
