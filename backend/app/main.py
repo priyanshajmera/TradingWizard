@@ -17,7 +17,7 @@ app = FastAPI(title=settings.PROJECT_NAME)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -261,4 +261,5 @@ async def startup_event():
     logger.info("Starting up FastAPI application - Manual Rest Mode Active")
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    is_dev = settings.ENVIRONMENT.lower() == "development"
+    uvicorn.run("app.main:app", host=settings.HOST, port=settings.PORT, reload=is_dev)

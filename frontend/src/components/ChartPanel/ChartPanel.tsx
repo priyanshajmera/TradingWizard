@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createChart, ColorType, CandlestickSeries, HistogramSeries, LineSeries, BaselineSeries } from 'lightweight-charts';
 import type { IChartApi, ISeriesApi, Logical } from 'lightweight-charts';
 import { marketStore } from '../../store/marketStore';
+import { endpoints } from '../../config';
 import DrawingToolbar from './DrawingToolbar';
 import type { DrawingTool } from './DrawingToolbar';
 
@@ -170,7 +171,7 @@ const ChartPanel: React.FC = () => {
     let isMounted = true;
 
     // Fetch localized data with specific timeframe
-    fetch(`http://localhost:3001/api/market/analyze/${activeSymbol}?interval=${timeframe}`)
+    fetch(endpoints.analyze(activeSymbol, timeframe))
       .then(res => res.json())
       .then(data => {
         if (!isMounted) return;

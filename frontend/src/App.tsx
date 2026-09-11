@@ -5,6 +5,7 @@ import NSEScanner from './components/NSEScanner/NSEScanner';
 import SymbolExplorer from './components/SymbolExplorer/SymbolExplorer';
 import { marketStore } from './store/marketStore';
 import { Activity } from 'lucide-react';
+import { WS_STREAM_URL } from './config';
 
 const App: React.FC = () => {
   const { activeSymbol } = marketStore();
@@ -12,7 +13,7 @@ const App: React.FC = () => {
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3001/ws/stream');
+    const ws = new WebSocket(WS_STREAM_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {

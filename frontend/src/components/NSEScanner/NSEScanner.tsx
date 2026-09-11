@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Radar, Loader, TrendingUp, Shield, Target, AlertTriangle, Zap, BarChart3, ArrowRight } from 'lucide-react';
+import { Radar, Loader, TrendingUp, Shield, AlertTriangle, Zap, BarChart3, ArrowRight } from 'lucide-react';
 import { marketStore } from '../../store/marketStore';
+import { endpoints } from '../../config';
 
 interface ScanSignal {
   symbol: string;
@@ -61,7 +62,7 @@ const NSEScanner: React.FC = () => {
     abortRef.current = controller;
 
     try {
-      const response = await fetch('http://localhost:3001/api/scan/nse', {
+      const response = await fetch(endpoints.scanNSE, {
         signal: controller.signal,
       });
 
@@ -239,7 +240,7 @@ const NSEScanner: React.FC = () => {
 
       {/* Results Table */}
       {displayResults.length > 0 && (
-        <div className="flex-1 overflow-hidden bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl">
+        <div className="flex-1 flex flex-col min-h-[500px] overflow-hidden bg-slate-900/60 backdrop-blur-xl border border-slate-800/60 rounded-2xl shadow-2xl">
           <div className="p-4 border-b border-slate-800/60 flex items-center gap-3">
             <TrendingUp size={18} className="text-emerald-400" />
             <span className="text-sm font-bold text-white">
@@ -247,7 +248,7 @@ const NSEScanner: React.FC = () => {
             </span>
             {isScanning && <Loader size={14} className="animate-spin text-cyan-400 ml-2" />}
           </div>
-          <div className="overflow-auto max-h-[calc(100vh-500px)]">
+          <div className="overflow-auto flex-1 min-h-[450px] max-h-[calc(100vh-280px)]">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10">
                 <tr className="bg-slate-950/90 backdrop-blur-sm border-b border-slate-800/80">

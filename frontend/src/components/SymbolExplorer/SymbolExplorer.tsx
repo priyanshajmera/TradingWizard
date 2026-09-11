@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { marketStore } from '../../store/marketStore';
 import { Search } from 'lucide-react';
+import { endpoints } from '../../config';
 
 const nameMap: Record<string, string> = {
   "GC=F": "GOLD FUTURES",
@@ -30,7 +31,7 @@ const SymbolExplorer: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/market/symbols')
+    fetch(endpoints.symbols)
       .then(res => res.json())
       .then(data => {
         setSymbolsUS(data.US);

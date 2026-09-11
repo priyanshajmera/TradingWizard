@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Activity, Zap, Loader } from 'lucide-react';
 import { marketStore } from '../../store/marketStore';
+import { endpoints } from '../../config';
 
 const getSignalStyle = (signal: string) => {
   switch(signal) {
@@ -19,7 +20,7 @@ const SignalPanel: React.FC = () => {
     setLoading(true);
     setSignals([]);
     try {
-      const res = await fetch(`http://localhost:3001/api/signals/generate/${activeSymbol}`);
+      const res = await fetch(endpoints.generateSignals(activeSymbol));
       const data = await res.json();
       setSignals(data.signals || []);
     } catch(err) {

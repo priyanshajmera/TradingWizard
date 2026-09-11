@@ -1,4 +1,3 @@
-import React from 'react';
 import { marketStore } from '../../store/marketStore';
 
 const Watchlist = () => {
